@@ -1,0 +1,2 @@
+#define COMBO_COUNT 2
+#define PERMISSIVE_HOLD   
