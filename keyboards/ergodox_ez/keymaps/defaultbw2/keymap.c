@@ -30,10 +30,7 @@ Fri 03/08/2024
 
 enum layers {
     _ZERO,
-    _ONE,
-    _TWO,
-    _THREE,
-    _FOUR
+    _ONE
 };
 
 /* =========================
@@ -44,6 +41,7 @@ enum custom_keycodes {
     TH_COPYCUT = SAFE_RANGE,
     TH_PLAINPASTE,
     TH_UNDERSCORE_F5,
+    TH_TILDE_F23,
     RUN_CMD_DATE
 };
 
@@ -112,6 +110,47 @@ void run_cmd_date(void) {
 }
 
 /* =========================
+   Layout Helpers
+   ========================= */
+
+// Each half is defined separately then joined at build time.
+// Row 2 has 6 keys per side (no inner column key).
+// Row 4 has 5 keys per side (no outer two keys).
+// Thumb cluster: 2 outer + 1 mid + 3 inner per side.
+
+// ERGODOX_LAYER takes all 76 args: 38 left half first, then 38 right half.
+// Use the "// --- RIGHT ---" comment in the keymap to find the divider.
+// Row 2 has 6 keys per side (no inner column). Row 4 has 5 keys per side.
+// Thumb cluster: 2 outer, 1 mid, 3 inner per side.
+#define ERGODOX_LAYER(                                          \
+    L00,L01,L02,L03,L04,L05,L06,                               \
+    L10,L11,L12,L13,L14,L15,L16,                               \
+    L20,L21,L22,L23,L24,L25,                                   \
+    L30,L31,L32,L33,L34,L35,L36,                               \
+    L40,L41,L42,L43,L44,                                       \
+    L55,L56,                                                    \
+    L54,                                                        \
+    L53,L52,L51,                                                \
+    R00,R01,R02,R03,R04,R05,R06,                               \
+    R10,R11,R12,R13,R14,R15,R16,                               \
+    R21,R22,R23,R24,R25,R26,                                   \
+    R30,R31,R32,R33,R34,R35,R36,                               \
+    R42,R43,R44,R45,R46,                                       \
+    R50,R51,                                                    \
+    R52,                                                        \
+    R55,R54,R53                                                 \
+) LAYOUT_ergodox_pretty(                                        \
+    L00,L01,L02,L03,L04,L05,L06, R00,R01,R02,R03,R04,R05,R06, \
+    L10,L11,L12,L13,L14,L15,L16, R10,R11,R12,R13,R14,R15,R16, \
+    L20,L21,L22,L23,L24,L25,         R21,R22,R23,R24,R25,R26, \
+    L30,L31,L32,L33,L34,L35,L36, R30,R31,R32,R33,R34,R35,R36, \
+    L40,L41,L42,L43,L44,                 R42,R43,R44,R45,R46, \
+                        L55,L56, R50,R51,                      \
+                            L54, R52,                          \
+                    L53,L52,L51, R55,R54,R53                   \
+)
+
+/* =========================
    Keymaps
    ========================= */
 
@@ -119,78 +158,49 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /* ================= ZERO ================= */
 
-[_ZERO] = LAYOUT_ergodox_pretty(
-
-  lt_OneEsc,  ltOneNotEqual, lt2Rename, lt3RebuildVS, lt4RemoveBreakpoint, lt5Comment, lt6Uncomment,
-/*_____________[][][][][][][]*/       lt7F7, lt8CloseAllButThis, lt9Breakpoint, KC_0, KC_MINUS, KC_BSPC, KC_DEL,
-
-  ltTabAltTab, KC_Q, KC_W, KC_F, KC_P, KC_G, MT(MOD_LALT|MOD_LSFT|MOD_LCTL,KC_F24),
-/*_____________[][][][][][][]*/ltPASTF22, KC_J, KC_L, KC_U, KC_Y, KC_SCLN, ltBrLBrR,
-
-  KC_F23, KC_A, KC_R, KC_S, KC_T, KC_D,
-/*_____________[][][][][][][]*/       KC_H, ltNNew, KC_E, KC_I, KC_O, KC_QUOT,
-
-  KC_LSFT, ltZUndo, KC_X, KC_C, KC_V, KC_B, KC_EQUAL,
-/*_____________[][][][][][][]*/      ltPPLSF21, ltKFormat, KC_M, ltCommCtrlComm, KC_DOT, KC_SLSH, KC_BSLS,
-
-  MT(MOD_LCTL,KC_BSPC), KC_LGUI, MT(MOD_LALT,KC_ENT), TH_COPYCUT, TH_PLAINPASTE,
-/*_____________[][][][][][][]*/         KC_LEFT, KC_UP, KC_RIGHT, KC_DOWN, TH_UNDERSCORE_F5,
-
-     ltF3CtrlF, ltF5ShiftF5,  /*oo____oo*/  MT(MOD_LALT|MOD_LSFT|MOD_LCTL,KC_HOME), KC_END,
-    ltF12CtrlMinus,   /*o____o*/   KC_PGUP,
-    KC_BTN1, LT(_TWO,KC_BTN2), LT(_ONE,KC_F15), /*[][]o____o[][]*/       LT(_ONE,KC_PGDN), KC_ENT, KC_SPC
+[_ZERO] = ERGODOX_LAYER(
+    // --- LEFT ---
+    lt_OneEsc,            ltOneNotEqual, lt2Rename, lt3RebuildVS,        lt4RemoveBreakpoint, lt5Comment, lt6Uncomment,
+    ltTabAltTab,          KC_Q,          KC_W,      KC_F,                KC_P,                KC_G,       MT(MOD_LALT|MOD_LSFT|MOD_LCTL,KC_F24),
+    TH_TILDE_F23,         KC_A,          KC_R,      KC_S,                KC_T,                KC_D,
+    KC_LSFT,  ltZUndo,       KC_X,      KC_C,                KC_V,                KC_B,       KC_EQUAL,
+    MT(MOD_LCTL,KC_BSPC), KC_LGUI,       MT(MOD_LALT,KC_ENT),           TH_COPYCUT,          TH_PLAINPASTE,
+    ltF3CtrlF,            ltF5ShiftF5,
+    ltF12CtrlMinus,
+    KC_BTN1,              KC_BTN2,       LT(_ONE,KC_F15),
+    // --- RIGHT ---
+    lt7F7,                lt8CloseAllButThis, lt9Breakpoint, KC_0,       KC_MINUS,            KC_BSPC,    KC_DEL,
+    ltPASTF22,            KC_J,          KC_L,      KC_U,                KC_Y,                KC_SCLN,    ltBrLBrR,
+    KC_H,                 ltNNew,        KC_E,      KC_I,                KC_O,                KC_QUOT,
+    ltPPLSF21,            ltKFormat,     KC_M,      ltCommCtrlComm,      KC_DOT,              KC_SLSH,    KC_BSLS,
+    KC_LEFT,              KC_UP,         KC_RIGHT,  KC_DOWN,             TH_UNDERSCORE_F5,
+    MT(MOD_LALT|MOD_LSFT|MOD_LCTL,KC_HOME), KC_END,
+    KC_PGUP,
+    LT(_ONE,KC_PGDN),     KC_ENT,        KC_SPC
 ),
 
-/* ================= ONE ================= */
+/* =================== ONE =================== */
 
-[_ONE] = LAYOUT_ergodox_pretty(
-  TO(_ZERO), KC_TRNS, KC_TRNS, KC_1, KC_1, RESET, KC_SLEP,
-                        ltF7PW, RUN_CMD_DATE, KC_F9, KC_F10, KC_F11, KC_F12, TO(_THREE),
-
-  _______, _______, _______, _______, _______, _______, _______,
-/*_____________[][][][][][][]*/           _______, _______, KC_MS_WH_UP, _______, _______, _______, TO(_TWO),
-
-  _______, _______, _______, _______, _______, _______,
-/*_____________[][][][][][][]*/             _______, KC_MS_LEFT, KC_MS_UP, KC_MS_RIGHT, KC_MS_DOWN, _______,
-
-  _______, _______, _______, _______, _______, _______, _______,
-/*_____________[][][][][][][]*/            TO(_FOUR), _______, KC_MS_WH_DOWN, _______, _______, _______, _______,
-
-  _______, _______, _______, _______, _______,
-/*_____________[][][][][][][]*/         KC_F11, KC_F10, S(KC_F11), S(KC_F9), S(KC_F10),
-
-    _______, C(S(KC_F5)), /*oo____oo*/         _______, KC_VOLU,
-    C(KC_F12), /*o____o*/        _______, 
-    _______, _______, _______,/*[][]o____o[][]*/       KC_VOLD, _______, KC_MPLY
-),
-
-/* ================= TWO ================= */
-
-    [_TWO] = LAYOUT_ergodox_pretty(
-    TO(_ZERO), KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6,
-                                                                                            KC_F7, KC_F8, KC_F9, KC_F10, KC_F13, KC_F14, KC_F15,
-
-    _______, _______, _______, _______, _______, _______, _______,
-                                                                                            _______, _______, _______, _______, KC_F16, KC_F17, KC_F18,
-
-    _______, _______, _______, _______, _______, _______,
-                                                                                            _______, _______, _______, KC_F19, KC_F22, KC_F21,
-
-    _______, _______, _______, _______, _______, _______, _______,
-                                                                                            _______, _______, _______, _______, KC_F22, KC_F23, KC_F24,
-
-    _______, _______, _______, _______, _______,
-                                                                                            _______, _______, _______, _______, _______,
-
-                            _______, _______,
-                                                                                            _______, _______,
-                            _______,
-                                                                                            _______, 
-                            _______, _______, _______,
-                                                                                            _______, _______, _______
-),
-
-/* THREE and FOUR left structurally identical to your original for brevity */
+[_ONE] = ERGODOX_LAYER(
+    // --- LEFT ---
+    TO(_ZERO),  C(KC_S),    KC_TRNS,    KC_1,          KC_1,       RESET,      KC_SLEP,
+    _______,    _______,    _______,    _______,        _______,    _______,    _______,
+    _______,    _______,    _______,    _______,        _______,    _______,
+    _______,    _______,    _______,    _______,        _______,    _______,    _______,
+    _______,    _______,    _______,    _______,        _______,
+    _______,    C(S(KC_F5)),
+    C(KC_F12),
+    _______,    _______,    _______,
+    // --- RIGHT ---
+    ltF7PW,     RUN_CMD_DATE, KC_F9,    KC_F10,         KC_F11,     KC_F12,     _______,
+    _______,    _______,    KC_MS_WH_UP, _______,        _______,    _______,    _______,
+    _______,    KC_MS_LEFT, KC_MS_UP,   KC_MS_RIGHT,    KC_MS_DOWN, _______,
+    _______,    _______,    KC_MS_WH_DOWN, _______,      _______,   _______,    _______,
+    KC_F11,     KC_F10,     S(KC_F11),  S(KC_F9),       S(KC_F10),
+    _______,    KC_VOLU,
+    _______,
+    KC_VOLD,    _______,    KC_MPLY
+)
 
 };
 
@@ -200,26 +210,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 layer_state_t layer_state_set_user(layer_state_t state) {
 
-    ergodox_right_led_1_off();
-    ergodox_right_led_2_off();
-    ergodox_right_led_3_off();
-
-    switch (get_highest_layer(state)) {
-        case _ONE:
-            ergodox_right_led_1_on();
-            break;
-        case _TWO:
-            ergodox_right_led_1_on();
-            ergodox_right_led_2_on();
-            break;
-        case _THREE:
-            ergodox_right_led_1_on();
-            ergodox_right_led_2_on();
-            ergodox_right_led_3_on();
-            break;
-        case _FOUR:
-            ergodox_right_led_3_on();
-            break;
+    if (get_highest_layer(state) == _ONE) {
+        ergodox_right_led_1_on();
+        ergodox_right_led_2_on();
+        ergodox_right_led_3_on();
+    } else {
+        ergodox_right_led_1_off();
+        ergodox_right_led_2_off();
+        ergodox_right_led_3_off();
     }
 
     return state;
@@ -245,31 +243,63 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     switch (keycode) {
 
-        case TH_COPYCUT:
-            if (is_held(record)) {
-                tap_code16(C(KC_X));
-                ergodox_right_led_1_on();
-            } else if (is_tapped(record)) {
-                tap_code16(C(KC_C));
-                ergodox_right_led_1_off();
+        case TH_COPYCUT: {
+            static uint16_t timer;
+            if (record->event.pressed) {
+                timer = timer_read();
+            } else {
+                if (timer_elapsed(timer) < TAPPING_TERM) {
+                    tap_code16(C(KC_C));
+                    ergodox_right_led_1_off();
+                } else {
+                    tap_code16(C(KC_X));
+                    ergodox_right_led_1_on();
+                }
             }
             return false;
+        }
 
-        case TH_PLAINPASTE:
-            if (is_tapped(record)) {
-                tap_code16(C(KC_V));
-            } else if (is_held(record)) {
-                tap_code16(C(S(KC_V)));
+        case TH_PLAINPASTE: {
+            static uint16_t timer;
+            if (record->event.pressed) {
+                timer = timer_read();
+            } else {
+                if (timer_elapsed(timer) < TAPPING_TERM) {
+                    tap_code16(C(KC_V));
+                } else {
+                    tap_code16(C(S(KC_V)));
+                }
             }
             return false;
+        }
 
-        case TH_UNDERSCORE_F5:
-            if (is_held(record)) {
-                tap_code16(KC_F5);
-            } else if (is_tapped(record)) {
-                tap_code16(S(KC_MINS));
+        case TH_UNDERSCORE_F5: {
+            static uint16_t timer;
+            if (record->event.pressed) {
+                timer = timer_read();
+            } else {
+                if (timer_elapsed(timer) < TAPPING_TERM) {
+                    tap_code16(S(KC_MINS));
+                } else {
+                    tap_code16(KC_F5);
+                }
             }
             return false;
+        }
+
+        case TH_TILDE_F23: {
+            static uint16_t timer;
+            if (record->event.pressed) {
+                timer = timer_read();
+            } else {
+                if (timer_elapsed(timer) < TAPPING_TERM) {
+                    tap_code16(S(KC_GRV));
+                } else {
+                    tap_code16(KC_F23);
+                }
+            }
+            return false;
+        }
 
         case RUN_CMD_DATE:
             if (record->event.pressed) {
